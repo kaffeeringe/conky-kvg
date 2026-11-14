@@ -1,8 +1,10 @@
-local URL = 'https://kvg-internetservice-proxy.p.networkteam.com/internetservice/services/passageInfo/stopPassages/stop?stop=2387&mode=departure'
+local STOP_FILE = os.getenv('HOME') .. '/.config/conky/kvg-stop.conf'
 local CACHE_SECONDS = 30
 
 local last_fetch = 0
 local cached = '${color2}lädt ...'
+local stop_nr = '2387'
+local stop_name = 'Hauptbahnhof'
 
 local function vlen(s)
     local n = 0
@@ -19,9 +21,22 @@ local function pad(s, w)
     return s
 end
 
+local function read_stop()
+    local f = io.open(STOP_FILE, 'r')
+    if not f then return end
+    for line in f:lines() do
+        local k, v = line:match('^%s*([%w_]+)%s*=%s*(.-)%s*$')
+        if k == 'STOP' and v ~= '' then stop_nr = v
+        elseif k == 'NAME' and v ~= '' then stop_name = v end
+    end
+    f:close()
+end
+
 local function fetch()
+    read_stop()
+    local url = 'https://kvg-internetservice-proxy.p.networkteam.com/internetservice/services/passageInfo/stopPassages/stop?stop=' .. stop_nr .. '&mode=departure'
     local jq = [[.actual[:20][] | [.patternText, .direction, (.mixedTime | sub("%UNIT_MIN%"; " Min")), (if (.actualTime // "") != .plannedTime then .actualTime else "" end)] | @tsv]]
-    local p = io.popen("curl -sf --max-time 10 '" .. URL .. "' | jq -r '" .. jq .. "'")
+    local p = io.popen("curl -sf --max-time 10 '" .. url .. "' | jq -r '" .. jq .. "'")
     if not p then return '${color2}API nicht erreichbar' end
     local rows = { '${color}' .. pad('Linie', 5) .. '  ' .. pad('Ziel', 24) .. 'Min' }
     for line in p:lines() do
@@ -43,4 +58,9 @@ function conky_kvg_abfahrten()
         cached = fetch()
     end
     return cached
+end
+
+function conky_kvg_title()
+    read_stop()
+    return '${color1}' .. stop_name
 end

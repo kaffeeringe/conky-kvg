@@ -20,6 +20,7 @@ Datenquelle: inoffizielle JSON-API der KVG („internetservice“), siehe [docs/
 mkdir -p ~/.config/conky ~/.local/bin
 cp conky/conky.conf   ~/.config/conky/conky.conf
 cp conky/kvg.lua      ~/.config/conky/kvg.lua
+cp conky/kvg-stop.conf.example ~/.config/conky/kvg-stop.conf   # Haltestelle konfigurieren
 cp bin/kvg-abfahrten.sh ~/.local/bin/kvg-abfahrten.sh   # nur Fallback ohne Lua
 chmod +x ~/.local/bin/kvg-abfahrten.sh
 ```
@@ -43,12 +44,20 @@ EOF
 Alternativ als systemd-Userdienst: `~/.config/systemd/user/conky.service` mit
 `ExecStart=/usr/bin/conky`, dann `systemctl --user enable --now conky.service`.
 
-## Haltestelle ändern
+## Haltestelle wechseln
 
-Standard ist der **Hauptbahnhof (Haltestellennummer `2387`)**. Ändern:
+Über die Datei **`~/.config/conky/kvg-stop.conf`** (wird beim Start aus `conky/kvg-stop.conf.example` angelegt):
 
-1. In `~/.config/conky/kvg.lua` in der `URL` die `stop=2387` durch die gewünschte Nummer ersetzen.
-2. In `~/.config/conky/conky.conf` den Titel `Hauptbahnhof` im `conky.text` anpassen.
+```
+STOP=2731
+NAME=Petruskirche
+```
+
+- `STOP` = vierstellige KVG-Haltestellennummer, `NAME` = Titel oben im Widget.
+- Änderung wird **ohne Conky-Neustart** übernommen (spätestens nach 30 s, wenn der API-Cache neu lädt; der Titel sofort beim nächsten Tick).
+- Beide Varianten (Lua und awk-Fallback) lesen dieselbe Datei; beim Fallback ohne Lua bleibt nur der Titel statisch in `conky.text`.
+
+Standard ist der **Hauptbahnhof (Haltestellennummer `2387`)**.
 
 Alle Haltestellennummern für das Kieler Stadtgebiet (488 Haltestellen, Stand der Abfrage siehe CSV):
 [docs/haltestellen-kiel.csv](docs/haltestellen-kiel.csv) – Spalten:
@@ -72,7 +81,7 @@ curl -s "https://kvg-internetservice-proxy.p.networkteam.com/internetservice/geo
 - **Spaltenbreite:** `pad(…, 5)` / `pad(…, 24)` in `kvg.lua` bzw. `%-5s` / `%-24s` in awk – Überschrift und Datenzeilen müssen identische Breiten haben. `pad()` zählt sichtbare Zeichen (UTF-8), damit Umlaute (z. B. „Reventloubrücke“) die Spalte nicht verschieben.
 - **Fallback ohne Lua** (`conky-std`): in `conky.text` statt `${lua_parse kvg_abfahrten}` nutzen:
   ```
-  ${color1}Hauptbahnhof${color}${alignr}${color1}${time %H:%M}${color}
+  ${color1}Hauptbahnhof${color}${alignr}${color1}${time %H:%M}${color}   # Titel hier manuell anpassen
   ${color1}${execi 30 /home/DEINUSER/.local/bin/kvg-abfahrten.sh}${color}
   ```
 
