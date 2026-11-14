@@ -33,7 +33,6 @@ local function read_stop()
 end
 
 local function fetch()
-vibe/conky-kvg-75a456
     read_stop()
     local url = 'https://kvg-internetservice-proxy.p.networkteam.com/internetservice/services/passageInfo/stopPassages/stop?stop=' .. stop_nr .. '&mode=departure'
     local jq = [[.actual[:20][] | [.patternText, .direction, (.mixedTime | sub("%UNIT_MIN%"; " Min")), (if (.actualTime // "") != .plannedTime then .actualTime else "" end)] | @tsv]]
