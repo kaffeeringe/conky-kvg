@@ -78,6 +78,7 @@ curl -s "https://kvg-internetservice-proxy.p.networkteam.com/internetservice/geo
 
 ## Hinweise
 
+- **Flackern:** in `conky.conf` ist `double_buffer = true` gesetzt – Conky zeichnet dann zuerst off-screen und tauscht das Bild atomar aus, statt sichtbar neu zu malen. Falls es trotzdem flackert: Compositor aktivieren (GNOME/KDE: standardmäßig an) bzw. `update_interval` erhöhen (z. B. `5.0`; die Uhr oben aktualiert sich dann seltener, die API-Daten sowieso nur alle 30 s via Cache).
 - Die API ist **inoffiziell** (kein API-Key, keine Doku, kann sich ändern). Abruf max. alle 30 s – in `kvg.lua` ist das bereits eingebaut (Caching über `os.time()`, `CACHE_SECONDS = 30`); die awk-Fallback-Variante nutzt `execi 30`.
 - `mixedTime` enthält den Platzhalter `%UNIT_MIN%` (→ „Min“ ersetzen); bei `status=PLANNED` steht dort stattdessen die Uhrzeit.
 - Verspätung: `actualTime` weicht von `plannedTime` ab – das Widget zeigt die Ist-Uhrzeit dann grau in Klammern an.
