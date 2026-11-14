@@ -72,6 +72,16 @@ curl -s "https://kvg-internetservice-proxy.p.networkteam.com/internetservice/geo
   | jq -r '.stops[] | [.shortName, .name, .id, .category, (.latitude/3600000), (.longitude/3600000)] | @csv'
 ```
 
+## Android / Smartphone (PWA)
+
+Conky läuft nur unter Linux/X11 – auf dem Handy nimmst Du stattdessen die Web-App in `app/widget.html` (gleiche API, gleiches Design; CORS ist erlaubt, die API antwortet mit `Access-Control-Allow-Origin: *`).
+
+1. **GitHub Pages aktivieren:** Repo → *Settings → Pages → Branch `main`, Folder `/ (root)`* → Save. Die App liegt dann unter `https://kaffeeringe.github.io/conky-kvg/app/widget.html`.
+2. **Auf dem Handy:** URL im Chrome öffnen, z. B. `https://kaffeeringe.github.io/conky-kvg/app/widget.html?stop=2731&name=Petruskirche`, dann Menü (⋮) → **„Zum Startbildschirm hinzufügen“** → Icon auf dem Homescreen, öffnet als Vollbild-App (`display: standalone`) und aktualisiert alle 30 s.
+3. **Haltestelle wechseln:** über die URL-Parameter `?stop=<Nummer>&name=<Name>` (Nummern siehe `docs/haltestellen-kiel.csv`); dafür einfach ein weiteres Lesezeichen/Icon mit anderem Parameter anlegen.
+
+Alternativen: **KWGT/Kustom**-Widget (HTTP-Abruf direkt aus dem Widget via `$wg(url, jsonpath)$`), **Termux + Termux:Widget** (führt `bin/kvg-abfahrten.sh` direkt aus, Shortcut auf den Homescreen), oder fertige Apps (NAH.SH-App, mobil.kielregion.de als PWA, kiel-live).
+
 ## Anzeige anpassen
 
 - **Transparenz:** in `conky.conf` `own_window_argb_value` ändern (255 = deckend, 180 = leicht transparent).
