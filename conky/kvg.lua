@@ -20,7 +20,7 @@ local function pad(s, w)
 end
 
 local function fetch()
-    local jq = [[.actual[:20][] | [.patternText, .direction, (.mixedTime | sub("%UNIT_MIN%"; " Min")), (if (.actualTime // "") != .plannedTime then .actualTime else "" end)] | @tsv]]
+    local jq = [[.actual[:20][] | [.patternText, .direction, (.mixedTime | sub("%UNIT_MIN%"; "")), (if (.actualTime // "") != .plannedTime then .actualTime else "" end)] | @tsv]]
     local p = io.popen("curl -sf --max-time 10 '" .. URL .. "' | jq -r '" .. jq .. "'")
     if not p then return '${color2}API nicht erreichbar' end
     local rows = { '${color}' .. pad('Linie', 5) .. '  ' .. pad('Ziel', 24) .. 'Min' }
@@ -28,7 +28,7 @@ local function fetch()
         local nr, ziel, zeit, clock = line:match('^([^\t]+)\t([^\t]*)\t([^\t]*)\t(.*)$')
         if nr then
             local extra = (clock ~= nil and clock ~= '') and ('  ${color2}(' .. clock .. ')${color1}') or ''
-            rows[#rows+1] = '${color1}' .. pad(nr, 5) .. '  ' .. pad(ziel, 24) .. '  ' .. zeit .. extra
+            rows[#rows+1] = '${color1}' .. pad(nr, 5) .. '  ' .. pad(ziel, 22) .. '  ' .. zeit .. extra
         end
     end
     p:close()
