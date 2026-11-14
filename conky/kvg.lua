@@ -39,7 +39,6 @@ vibe/conky-kvg-75a456
     local jq = [[.actual[:20][] | [.patternText, .direction, (.mixedTime | sub("%UNIT_MIN%"; " Min")), (if (.actualTime // "") != .plannedTime then .actualTime else "" end)] | @tsv]]
     local p = io.popen("curl -sf --max-time 10 '" .. url .. "' | jq -r '" .. jq .. "'")
 
-main
     if not p then return '${color2}API nicht erreichbar' end
     local rows = { '${color}' .. pad('Linie', 5) .. '  ' .. pad('Ziel', 24) .. 'Min' }
     for line in p:lines() do
