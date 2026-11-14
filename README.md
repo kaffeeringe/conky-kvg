@@ -7,6 +7,8 @@ Liniennummern und Minuten in Amber/Orange, Uhrzeit oben rechts.
 
 Datenquelle: inoffizielle JSON-API der KVG („internetservice“), siehe [docs/api-endpunkte.md](docs/api-endpunkte.md).
 
+![Vorschau](docs/preview.png)
+
 ## Voraussetzungen
 
 - Ubuntu/Debian: `sudo apt install conky-all jq curl` (`conky-all` enthält die nötige Lua-Unterstützung; prüfen mit `conky -v | grep -i lua`)
