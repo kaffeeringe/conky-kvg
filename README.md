@@ -78,7 +78,7 @@ curl -s "https://kvg-internetservice-proxy.p.networkteam.com/internetservice/geo
 
 ## Hinweise
 
-- Die API ist **inoffiziell** (kein API-Key, keine Doku, kann sich ändern). Nicht öfter als alle 30–60 s pollen (`execi 30` / `update_interval`).
+- Die API ist **inoffiziell** (kein API-Key, keine Doku, kann sich ändern). Abruf max. alle 30 s – in `kvg.lua` ist das bereits eingebaut (Caching über `os.time()`, `CACHE_SECONDS = 30`); die awk-Fallback-Variante nutzt `execi 30`.
 - `mixedTime` enthält den Platzhalter `%UNIT_MIN%` (→ „Min“ ersetzen); bei `status=PLANNED` steht dort stattdessen die Uhrzeit.
 - Verspätung: `actualTime` weicht von `plannedTime` ab – das Widget zeigt die Ist-Uhrzeit dann grau in Klammern an.
 - Am Hauptbahnhof fahren viele Linien takt-synchron zur selben Minute (Taktknoten) – gleiche Minutenangaben in mehreren Zeilen sind korrekt, siehe dazu mehr Zeilen via `.actual[:20]`.
