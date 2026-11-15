@@ -37,12 +37,15 @@
     font-size: 1.1em;
     color: white;
   }
+  #name {
+    font-size: 2em;
+  }  
 </style>
 </head>
 <body>
 <div class="title"><span id="name"></span><span id="clock"></span></div>
 <table>
-  <thead><tr><th class="col-line">Linie</th><th class="col-ziel">Ziel</th><th>Min</th></tr></thead>
+  <thead><tr><th class="col-line">Linie</th><th class="col-ziel">Ziel</th><th>Abfahrt</th></tr></thead>
   <tbody id="rows"></tbody>
 </table>
 <script>
@@ -76,7 +79,7 @@ async function tick() {
       return;
     }
     tbody.innerHTML = list.map(p => {
-      const zeit = String(p.mixedTime || '').replace('%UNIT_MIN%', ' Min');
+      const zeit = String(p.mixedTime || '').replace('%UNIT_MIN%', 'min');
       const delay = (p.actualTime && p.actualTime !== p.plannedTime)
         ? ' <span class="delay">(' + esc(p.actualTime) + ')</span>' : '';
       return '<tr><td class="col-line">' + esc(p.patternText) + '</td>' +
