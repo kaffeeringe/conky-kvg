@@ -84,6 +84,7 @@ Alternativen: **KWGT/Kustom**-Widget (HTTP-Abruf direkt aus dem Widget via `$wg(
 
 ## Anzeige anpassen
 
+- **Uhrzeit-Schriftart (z. B. Doto Black):** in `conky.text` die Uhr mit `${font Doto:size=16:weight=900}…${font}` einklammern (falls fontconfig den Stil als eigenen Family-Namen führt, geht auch `${font 'Doto Black':size=16}`; prüfen mit `fc-list | grep -i doto`). In der PWA (`app/widget.html`) wird Doto über Google Fonts geladen und auf das Uhr-Element (`#clock`) angewendet.
 - **Transparenz:** in `conky.conf` `own_window_argb_value` ändern (255 = deckend, 180 = leicht transparent).
 - **Farben:** `color1` (Amber, Standard `FFA500`), `default_color` (Weiß), `color2` (grau für Hinweise/Fehler).
 - **Mehr/weniger Zeilen:** in `kvg.lua` bzw. `kvg-abfahrten.sh` das `.actual[:20]` anpassen.
