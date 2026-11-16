@@ -103,7 +103,7 @@ async function tick() {
       return;
     }
     tbody.innerHTML = list.map(p => {
-      let zeit = String(p.mixedTime || '').replace('%UNIT_MIN%', 'min');
+      let zeit = String(p.mixedTime || '').replace(' %UNIT_MIN%', 'min');
       if (zeit === '0min') zeit = 'sofort';
       const delay = (p.actualTime && p.actualTime !== p.plannedTime)
         ? ' <span class="delay">(' + esc(p.actualTime) + ')</span>' : '';

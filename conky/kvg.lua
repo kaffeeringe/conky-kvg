@@ -41,7 +41,7 @@ end
 local function fetch()
     read_stop()
     local url = 'https://kvg-internetservice-proxy.p.networkteam.com/internetservice/services/passageInfo/stopPassages/stop?stop=' .. stop_nr .. '&mode=departure'
-    local jq = [[([.actual[:20][] | [.patternText, .direction, ((.mixedTime | sub("%UNIT_MIN%"; "min")) as $t | (if $t == "0min" then "sofort" else $t end)), (if (.actualTime // "") != .plannedTime then .actualTime else "" end)] | @tsv] + (if ((.generalAlerts // []) | length) > 0 then ["ALERT\t" + ([.generalAlerts[].title] | join("   +++   "))] else [] end)) | .[]]]
+    local jq = [==[([.actual[:20][] | [.patternText, .direction, ((.mixedTime | sub(" %UNIT_MIN%"; "min")) as $t | (if $t == "0min" then "sofort" else $t end)), (if (.actualTime // "") != .plannedTime then .actualTime else "" end)] | @tsv] + (if ((.generalAlerts // []) | length) > 0 then ["ALERT\t" + ([.generalAlerts[].title] | join("   +++   "))] else [] end)) | .[]]==]
     local p = io.popen("curl -sf --max-time 10 '" .. url .. "' | jq -r '" .. jq .. "'")
 
     if not p then return '${color2}API nicht erreichbar' end
