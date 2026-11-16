@@ -36,4 +36,4 @@ Basis-URL: `https://kvg-internetservice-proxy.p.networkteam.com/internetservice`
 - `generalAlerts[]` – allgemeine Meldungen
 - `firstPassageTime`, `lastPassageTime` – Zeitfenster der Antwort (Epoch ms)
 
-Hinweis: `?stop=` erwartet die **vierstellige Haltestellennummer** (z. B. `2731`), nicht die lange interne `id`.
+Hinweis: `?stop=` erwartet die **vierstellige Haltestellennummer** (z. B. `2387`), nicht die lange interne `id`.
