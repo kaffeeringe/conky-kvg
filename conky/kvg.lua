@@ -35,16 +35,16 @@ end
 local function fetch()
     read_stop()
     local url = 'https://kvg-internetservice-proxy.p.networkteam.com/internetservice/services/passageInfo/stopPassages/stop?stop=' .. stop_nr .. '&mode=departure'
-    local jq = [[.actual[:20][] | [.patternText, .direction, (.mixedTime | sub("%UNIT_MIN%"; " Min")), (if (.actualTime // "") != .plannedTime then .actualTime else "" end)] | @tsv]]
+    local jq = [[.actual[:20][] | [.patternText, .direction, (.mixedTime | sub("%UNIT_MIN%"; "")), (if (.actualTime // "") != .plannedTime then .actualTime else "" end)] | @tsv]]
     local p = io.popen("curl -sf --max-time 10 '" .. url .. "' | jq -r '" .. jq .. "'")
 
     if not p then return '${color2}API nicht erreichbar' end
-    local rows = { '${color}' .. pad('Linie', 5) .. '  ' .. pad('Ziel', 24) .. 'Min' }
+    local rows = { '${font DejaVu Sans Mono:size=11}${color}' .. pad('Linie', 5) .. '  ' .. pad('Ziel', 24) .. 'Min' }
     for line in p:lines() do
         local nr, ziel, zeit, clock = line:match('^([^\t]+)\t([^\t]*)\t([^\t]*)\t(.*)$')
         if nr then
             local extra = (clock ~= nil and clock ~= '') and ('  ${color2}(' .. clock .. ')${color1}') or ''
-            rows[#rows+1] = '${color1}' .. pad(nr, 5) .. '  ' .. pad(ziel, 22) .. '  ' .. zeit .. extra
+            rows[#rows+1] = '${font Doto:size=11:weight=900}${color1}' .. pad(nr, 5) .. '  ' .. pad(ziel, 22) .. '  ' .. zeit .. extra
         end
     end
     p:close()
