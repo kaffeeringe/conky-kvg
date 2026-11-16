@@ -44,7 +44,6 @@
   th { color: #fff; text-align: left; font-weight: normal; }
   td { white-space: nowrap; }
   .err { color: #777; }
-  .delay { color: #777; }
   .col-line { width: 6ch; }
   .col-ziel { width: 23ch; }
   th:last-child, td:last-child { text-align: right; }
@@ -65,7 +64,7 @@
 <body>
 <div class="title"><span id="name"></span></div>
 <table>
-  <thead><tr><th class="col-line">Linie</th><th class="col-ziel">Ziel</th><th class="col-abf"><div id="clock"></div>Abfahrt</th><th class="col-ist"></th></tr></thead>
+  <thead><tr><th class="col-line">Linie</th><th class="col-ziel">Ziel</th><th class="col-abf"><div id="clock"></div>Abfahrt</th></tr></thead>
   <tbody id="rows"></tbody>
 </table>
 <div id="alert" class="alert"></div>
@@ -106,11 +105,9 @@ async function tick() {
     tbody.innerHTML = list.map(p => {
       let zeit = String(p.mixedTime || '').replace(' %UNIT_MIN%', 'min');
       if (zeit === '0min') zeit = 'sofort';
-      const ist = (p.actualTime && p.actualTime !== p.plannedTime) ? esc(p.actualTime) : '';
       return '<tr><td class="col-line">' + esc(p.patternText) + '</td>' +
              '<td class="col-ziel">' + esc(p.direction) + '</td>' +
-             '<td class="col-abf">' + esc(zeit) + '</td>' +
-             '<td class="delay">' + ist + '</td></tr>';
+             '<td class="col-abf">' + esc(zeit) + '</td></tr>';
     }).join('');
   } catch (e) {
     tbody.innerHTML = '<tr><td colspan="3" class="err">API nicht erreichbar</td></tr>';
