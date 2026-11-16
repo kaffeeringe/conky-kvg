@@ -90,6 +90,7 @@ Alternativen: **KWGT/Kustom**-Widget (HTTP-Abruf direkt aus dem Widget via `$wg(
 - **Transparenz:** in `conky.conf` `own_window_argb_value` ändern (255 = deckend, 180 = leicht transparent).
 - **Farben:** `color1` (Amber, Standard `FFA500`), `default_color` (Weiß), `color2` (grau für Hinweise/Fehler).
 - **DFI-Layout (an die echte Tafel angelehnt):** Uhr steht in eigener Zeile oben rechts über der Spalte „Abfahrt“ (in `conky.conf` per `${alignr}`; dafür `minimum_width` klein halten, damit die Tabellenbreite das Fenster definiert). Abfahrt-Spalte rechtsbündig (`lpad(…, 8)` in `kvg.lua`, `text-align: right` in der PWA), Format `6min` (klein, ohne Leerzeichen), bei `0min` wird `sofort` angezeigt; ohne Echtzeit (`status=PLANNED`) steht dort die Soll-Uhrzeit (`8:35`). In der PWA: `th/td:last-child { text-align: right }` und `sofort` im JS.
+- **Lauftext-Fußzeile:** `generalAlerts` aus der API werden als scrollende Fußzeile angezeigt (Conky: `${scroll 39 …}` aus `kvg.lua`; PWA: CSS-Marquee in `app/widget.html`). Mehrere Meldungen werden mit ` +++ ` getrennt. Erscheint nur, wenn Meldungen vorliegen.
 - **Mehr/weniger Zeilen:** in `kvg.lua` bzw. `kvg-abfahrten.sh` das `.actual[:20]` anpassen.
 - **Linien filtern:** im jq-Filter z. B. `select(.patternText == "6" or .patternText == "91")` ergänzen.
 - **Spaltenbreite:** `pad(…, 5)` / `pad(…, 24)` in `kvg.lua` bzw. `%-5s` / `%-24s` in awk – Überschrift und Datenzeilen müssen identische Breiten haben. `pad()` zählt sichtbare Zeichen (UTF-8), damit Umlaute (z. B. „Reventloubrücke“) die Spalte nicht verschieben.
