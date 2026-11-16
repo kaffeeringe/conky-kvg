@@ -47,6 +47,7 @@
   .delay { color: #777; }
   .col-line { width: 6ch; }
   .col-ziel { width: 23ch; }
+  th:last-child, td:last-child { text-align: right; }
   thead, #name {
     font-family: 'DejaVu Sans Mono', sans-serif;
     font-size: 1.1em;
@@ -94,7 +95,8 @@ async function tick() {
       return;
     }
     tbody.innerHTML = list.map(p => {
-      const zeit = String(p.mixedTime || '').replace('%UNIT_MIN%', 'min');
+      let zeit = String(p.mixedTime || '').replace('%UNIT_MIN%', 'min');
+      if (zeit === '0min') zeit = 'sofort';
       const delay = (p.actualTime && p.actualTime !== p.plannedTime)
         ? ' <span class="delay">(' + esc(p.actualTime) + ')</span>' : '';
       return '<tr><td class="col-line">' + esc(p.patternText) + '</td>' +
