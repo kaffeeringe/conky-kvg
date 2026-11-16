@@ -63,11 +63,11 @@ Alternativ systemd-Userdienst: `~/.config/systemd/user/conky.service` mit `ExecS
 Über `~/.config/conky/kvg-stop.conf` (aus `conky/kvg-stop.conf.example` kopiert):
 
 ```
-STOP=2731
-NAME=Petruskirche
+STOP=3001
+NAME=Hbf/Kaistraße
 ```
 
-`STOP` = vierstellige KVG-Haltestellennummer, `NAME` = Titel (weiß, size 13). Ohne Conky-Neustart wirksam (Titel sofort, Daten spätestens nach 30 s Cache). Standard: Hauptbahnhof `2387`. Alle Nummern: [docs/haltestellen-kiel.csv](docs/haltestellen-kiel.csv) (Spalten `haltestellennummer,name,interne_id,kategorie,latitude,longitude`; Beispiele: `2387` Hbf, `2731` Petruskirche, `3001` Hbf/Kaistraße).
+`STOP` = vierstellige KVG-Haltestellennummer, `NAME` = Titel (weiß, size 13). Ohne Conky-Neustart wirksam (Titel sofort, Daten spätestens nach 30 s Cache). Standard: Hauptbahnhof `2387`. Alle Nummern: [docs/haltestellen-kiel.csv](docs/haltestellen-kiel.csv) (Spalten `haltestellennummer,name,interne_id,kategorie,latitude,longitude`; Beispiele: `2387` Hauptbahnhof, `3001` Hbf/Kaistraße).
 
 ### Design
 
@@ -77,14 +77,14 @@ NAME=Petruskirche
 - **Fonts:** Uhr + Tabelle in Doto Black via `${font Doto:size=…:weight=900}` in `conky.text`; Titel in DejaVu Sans Mono. Doto ist monospaced → die Zeichen-basierten Spaltenbreiten (`pad`/`lpad` in `kvg.lua`) bleiben gültig. Falls abgeschnitten: `minimum_width` anpassen (aktuell 260, damit die Uhr exakt über „Abfahrt“ steht).
 - **DFI-Layout:** Uhr eigene Zeile oben rechts über der Spalte „Abfahrt“ (`${alignr}`); Abfahrt rechtsbündig (`lpad(…, 8)`), Format `6min`, bei `0min` → `sofort`, bei `status=PLANNED` die Soll-Uhrzeit (`8:35`); bei Verspätung (`actualTime ≠ plannedTime`) steht die Ist-Uhrzeit in der Abfahrt-Spalte. Lauftext-Fußzeile aus `generalAlerts` (Conky `${scroll 39 …}`, mehrere Meldungen mit ` +++ ` getrennt).
 - **Mehr/weniger Zeilen / Linien filtern:** `.actual[:20]` bzw. `select(.patternText == "6" …)` im jq-Filter in `kvg.lua`.
-- **Fallback ohne Lua** (`conky-std`): in `conky.text` die `${lua_parse …}`-Zeile ersetzen durch `${execi 30 /home/DEINUSER/.local/bin/kvg-abfahrten.sh}` (liest ebenfalls `kvg-stop.conf`; Titel dann manuell in `conky.text`).
+- **Fallback ohne Lua** (`conky-std`): in `conky.text` die `${lua_parse …}`-Zeile ersetzen durch `${execi 30 ~/.local/bin/kvg-abfahrten.sh}` (liest ebenfalls `kvg-stop.conf`; Titel dann manuell in `conky.text`).
 
 ## Android / Smartphone (PWA)
 
 Conky läuft nur unter X11 – auf dem Handy nimmst Du die Web-App in `app/widget.html` (gleiche API und gleiches Design; CORS erlaubt: `Access-Control-Allow-Origin: *`; Fonts lokal in `app/fonts/`, kein Google-Request; Lizenzen: Doto = SIL OFL 1.1, DejaVu = Bitstream-Vera).
 
 1. **GitHub Pages:** Repo → *Settings → Pages → Branch `main`, Folder `/ (root)`* → Save.
-2. **Handy:** Chrome öffnen, z. B. `https://kaffeeringe.github.io/conky-kvg/app/widget.html?stop=2731&name=Petruskirche`, Menü (⋮) → „Zum Startbildschirm hinzufügen“ → Vollbild-App, aktualisiert alle 30 s.
+2. **Handy:** Chrome öffnen, z. B. `https://kaffeeringe.github.io/conky-kvg/app/widget.html`, Menü (⋮) → „Zum Startbildschirm hinzufügen“ → Vollbild-App, aktualisiert alle 30 s.
 3. **Haltestelle wechseln (ohne ID):** Suchfeld oben (Autovervollständigung aus `docs/haltestellen-kiel.csv`, nur Namen, keine Nummern; Schrift DejaVu Sans Mono; per ☰/✕-Button rechts oben ausblendbar → Original-Look, gemerkt in `localStorage`). Auswahl landet in `localStorage` und in der URL (`?stop=…&name=…`) – Priorität: URL > localStorage > Default (Hbf `2387`). Zum Teilen einfach URL mit Parametern.
 
 Alternativen: KWGT/Kustom-Widget (`$wg(url, jsonpath)$`), Termux + Termux:Widget (führt `bin/kvg-abfahrten.sh` aus), fertige Apps (NAH.SH-App, mobil.kielregion.de als PWA, kiel-live).
@@ -103,8 +103,7 @@ curl -s "https://kvg-internetservice-proxy.p.networkteam.com/internetservice/geo
 
 - Die API ist **inoffiziell** (kein Key, keine Doku, kann sich ändern). Abruf max. alle 30 s – in `kvg.lua` eingebaut (`CACHE_SECONDS = 30`, Cache über `os.time()`); Fallback nutzt `execi 30`.
 - `mixedTime` enthält `" %UNIT_MIN%"` (mit Leerzeichen) → wird zu `min`/`sofort` verarbeitet; bei `status=PLANNED` steht dort die Soll-Uhrzeit.
-- Am Hauptbahnhof fahren viele Linien takt-synchron (Taktknoten) – gleiche Minuten in mehreren Zeilen sind korrekt.
-- Lua-Fehler siehst Du im Terminal (`conky` starten statt killall) auf stderr, z. B. `kvg.lua:…: syntax error`.
+- Bei Lua-Fehlern Conky im Terminal starten – die Fehlermeldung erscheint auf stderr (z. B. `kvg.lua:…: syntax error near …`).
 
 ## Lizenz
 
