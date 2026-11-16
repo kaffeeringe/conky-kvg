@@ -48,6 +48,7 @@
   .col-line { width: 6ch; }
   .col-ziel { width: 23ch; }
   th:last-child, td:last-child { text-align: right; }
+  .col-abf { text-align: right; width: 8ch; }
   .alert { color: #777; white-space: nowrap; overflow: hidden; margin-top: 6px; font-size: 0.9em; display: none; }
   .alert span { display: inline-block; padding-left: 100%; animation: marq 25s linear infinite; }
   @keyframes marq { from { transform: translateX(0); } to { transform: translateX(-100%); } }
@@ -64,7 +65,7 @@
 <body>
 <div class="title"><span id="name"></span><span id="clock"></span></div>
 <table>
-  <thead><tr><th class="col-line">Linie</th><th class="col-ziel">Ziel</th><th>Abfahrt</th></tr></thead>
+  <thead><tr><th class="col-line">Linie</th><th class="col-ziel">Ziel</th><th class="col-abf">Abfahrt</th><th>Ist</th></tr></thead>
   <tbody id="rows"></tbody>
 </table>
 <div id="alert" class="alert"></div>
@@ -105,11 +106,11 @@ async function tick() {
     tbody.innerHTML = list.map(p => {
       let zeit = String(p.mixedTime || '').replace(' %UNIT_MIN%', 'min');
       if (zeit === '0min') zeit = 'sofort';
-      const delay = (p.actualTime && p.actualTime !== p.plannedTime)
-        ? ' <span class="delay">(' + esc(p.actualTime) + ')</span>' : '';
+      const ist = (p.actualTime && p.actualTime !== p.plannedTime) ? esc(p.actualTime) : '';
       return '<tr><td class="col-line">' + esc(p.patternText) + '</td>' +
              '<td class="col-ziel">' + esc(p.direction) + '</td>' +
-             '<td>' + esc(zeit) + delay + '</td></tr>';
+             '<td class="col-abf">' + esc(zeit) + '</td>' +
+             '<td class="delay">' + ist + '</td></tr>';
     }).join('');
   } catch (e) {
     tbody.innerHTML = '<tr><td colspan="3" class="err">API nicht erreichbar</td></tr>';
