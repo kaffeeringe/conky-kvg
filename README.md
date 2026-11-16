@@ -77,6 +77,8 @@ curl -s "https://kvg-internetservice-proxy.p.networkteam.com/internetservice/geo
 Conky läuft nur unter Linux/X11 – auf dem Handy nimmst Du stattdessen die Web-App in `app/widget.html` (gleiche API, gleiches Design; CORS ist erlaubt, die API antwortet mit `Access-Control-Allow-Origin: *`).
 
 1. **GitHub Pages aktivieren:** Repo → *Settings → Pages → Branch `main`, Folder `/ (root)`* → Save. Die App liegt dann unter `https://kaffeeringe.github.io/conky-kvg/app/widget.html`.
+
+   **Schriftarten lokal gebundelt:** die PWA lädt nichts mehr von Google – in `app/fonts/` liegen `Doto-var-latin.woff2` (Doto, variable wght 100–900, latin, SIL OFL 1.1) sowie `DejaVuSansMono.ttf` / `DejaVuSansMono-Bold.ttf` (DejaVu Sans Mono, Bitstream-Vera-Lizenz) und werden per `@font-face` in `app/widget.html` eingebunden. Titel/Kopf (`#name`, `thead`) nutzen DejaVu Sans Mono, Datentabelle + Uhr Doto.
 2. **Auf dem Handy:** URL im Chrome öffnen, z. B. `https://kaffeeringe.github.io/conky-kvg/app/widget.html?stop=2731&name=Petruskirche`, dann Menü (⋮) → **„Zum Startbildschirm hinzufügen“** → Icon auf dem Homescreen, öffnet als Vollbild-App (`display: standalone`) und aktualisiert alle 30 s.
 3. **Haltestelle wechseln:** über die URL-Parameter `?stop=<Nummer>&name=<Name>` (Nummern siehe `docs/haltestellen-kiel.csv`); dafür einfach ein weiteres Lesezeichen/Icon mit anderem Parameter anlegen.
 
