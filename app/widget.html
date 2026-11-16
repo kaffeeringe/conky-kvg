@@ -69,7 +69,6 @@
 <div class="search" id="searchrow">
   <input id="search" list="stoplist" placeholder="Haltestelle suchen…" autocomplete="off">
   <datalist id="stoplist"></datalist>
-  <button id="nearby" type="button">Umgebung</button>
 </div>
 <div class="title"><span id="name"></span><button id="togglesearch" type="button" title="Suche ein-/ausblenden">☰</button></div>
 <table>
@@ -121,24 +120,6 @@ document.getElementById('togglesearch').addEventListener('click', () => {
 document.getElementById('search').addEventListener('change', e => {
   const opt = [...document.querySelectorAll('#stoplist option')].find(o => o.value === e.target.value);
   if (opt) setStop(opt.dataset.nr, e.target.value);
-});
-
-document.getElementById('nearby').addEventListener('click', () => {
-  if (!navigator.geolocation) return;
-  navigator.geolocation.getCurrentPosition(async pos => {
-    const lat = pos.coords.latitude, lon = pos.coords.longitude, d = 0.01;
-    try {
-      const r = await fetch(API_BASE + '/geoserviceDispatcher/services/stopinfo/stops?top=' + Math.round((lat + d) * 3600000) + '&bottom=' + Math.round((lat - d) * 3600000) + '&left=' + Math.round((lon - d) * 3600000) + '&right=' + Math.round((lon + d) * 3600000));
-      const j = await r.json();
-      const k = lat * Math.PI / 180;
-      const stops = (j.stops || []).map(s => ({
-        nr: s.shortName, name: s.name, lat: s.latitude / 3600000, lon: s.longitude / 3600000
-      })).map(s => ({ nr: s.nr, name: s.name, dist: Math.hypot(s.lat - lat, (s.lon - lon) * Math.cos(k)) }))
-        .sort((a, b) => a.dist - b.dist).slice(0, 15);
-      fillList(stops);
-      document.getElementById('search').focus();
-    } catch (e) {}
-  });
 });
 
 async function loadStops() {
