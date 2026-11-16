@@ -48,6 +48,9 @@
   .col-ziel { width: 23ch; }
   th:last-child, td:last-child { text-align: right; }
   .col-abf { text-align: right; width: 8ch; }
+  .search { display: flex; gap: 6px; margin-bottom: 8px; }
+  .search input { flex: 1; min-width: 0; background: #111; color: #FFA500; border: 1px solid #333; font: inherit; padding: 4px 6px; }
+  .search button { background: #111; color: #FFA500; border: 1px solid #333; font: inherit; padding: 4px 8px; cursor: pointer; }
   .alert { color: #777; white-space: nowrap; overflow: hidden; margin-top: 6px; font-size: 0.9em; display: none; }
   .alert span { display: inline-block; padding-left: 100%; animation: marq 25s linear infinite; }
   @keyframes marq { from { transform: translateX(0); } to { transform: translateX(-100%); } }
@@ -62,6 +65,11 @@
 </style>
 </head>
 <body>
+<div class="search">
+  <input id="search" list="stoplist" placeholder="Haltestelle suchen…" autocomplete="off">
+  <datalist id="stoplist"></datalist>
+  <button id="nearby" type="button">Umgebung</button>
+</div>
 <div class="title"><span id="name"></span></div>
 <table>
   <thead><tr><th class="col-line">Linie</th><th class="col-ziel">Ziel</th><th class="col-abf"><div id="clock"></div>Abfahrt</th></tr></thead>
@@ -70,12 +78,70 @@
 <div id="alert" class="alert"></div>
 <script>
 const params = new URLSearchParams(location.search);
-const STOP = params.get('stop') || '2387';
-const NAME = params.get('name') || 'Hauptbahnhof';
-const API = 'https://kvg-internetservice-proxy.p.networkteam.com/internetservice/services/passageInfo/stopPassages/stop?stop=' + encodeURIComponent(STOP) + '&mode=departure';
+let STOP = params.get('stop') || localStorage.getItem('kvg-stop') || '2387';
+let NAME = params.get('name') || localStorage.getItem('kvg-name') || 'Hauptbahnhof';
+const API_BASE = 'https://kvg-internetservice-proxy.p.networkteam.com/internetservice';
+const apiUrl = () => API_BASE + '/services/passageInfo/stopPassages/stop?stop=' + encodeURIComponent(STOP) + '&mode=departure';
 
 document.getElementById('name').textContent = NAME;
 document.title = NAME;
+
+function fillList(stops) {
+  document.getElementById('stoplist').innerHTML =
+    stops.map(s => '<option value="' + esc(s.name) + ' (' + esc(s.nr) + ')" data-nr="' + esc(s.nr) + '"></option>').join('');
+}
+
+function setStop(nr, name) {
+  STOP = nr;
+  NAME = name;
+  localStorage.setItem('kvg-stop', nr);
+  localStorage.setItem('kvg-name', name);
+  const u = new URL(location.href);
+  u.searchParams.set('stop', nr);
+  u.searchParams.set('name', name);
+  history.replaceState(null, '', u);
+  document.getElementById('name').textContent = name;
+  document.title = name;
+  document.getElementById('search').value = name + ' (' + nr + ')';
+  tick();
+}
+
+document.getElementById('search').addEventListener('change', e => {
+  const opt = [...document.querySelectorAll('#stoplist option')].find(o => o.value === e.target.value);
+  if (opt) setStop(opt.dataset.nr, e.target.value.replace(/ \(\d+\)$/, ''));
+});
+
+document.getElementById('nearby').addEventListener('click', () => {
+  if (!navigator.geolocation) return;
+  navigator.geolocation.getCurrentPosition(async pos => {
+    const lat = pos.coords.latitude, lon = pos.coords.longitude, d = 0.01;
+    try {
+      const r = await fetch(API_BASE + '/geoserviceDispatcher/services/stopinfo/stops?top=' + Math.round((lat + d) * 3600000) + '&bottom=' + Math.round((lat - d) * 3600000) + '&left=' + Math.round((lon - d) * 3600000) + '&right=' + Math.round((lon + d) * 3600000));
+      const j = await r.json();
+      const k = lat * Math.PI / 180;
+      const stops = (j.stops || []).map(s => ({
+        nr: s.shortName, name: s.name, lat: s.latitude / 3600000, lon: s.longitude / 3600000
+      })).map(s => ({ nr: s.nr, name: s.name, dist: Math.hypot(s.lat - lat, (s.lon - lon) * Math.cos(k)) }))
+        .sort((a, b) => a.dist - b.dist).slice(0, 15);
+      fillList(stops);
+      document.getElementById('search').focus();
+    } catch (e) {}
+  });
+});
+
+async function loadStops() {
+  try {
+    const r = await fetch('../docs/haltestellen-kiel.csv');
+    const t = await r.text();
+    const stops = t.trim().split('\n').slice(1).map(l => {
+      const m = l.match(/^(\d+),"((?:[^"]|"")*)",[^,]*,[^,]*,([^,]+),([^,]+)$/);
+      return m ? { nr: m[1], name: m[2].replace(/""/g, '"'), lat: +m[3], lon: +m[4] } : null;
+    }).filter(Boolean);
+    fillList(stops);
+    const cur = document.querySelector('#stoplist option[data-nr="' + STOP + '"]');
+    if (cur) document.getElementById('search').value = cur.value;
+  } catch (e) {}
+}
 
 function esc(s) {
   return String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
@@ -90,7 +156,7 @@ function tickClock() {
 async function tick() {
   const tbody = document.getElementById('rows');
   try {
-    const r = await fetch(API, {cache: 'no-store'});
+    const r = await fetch(apiUrl(), {cache: 'no-store'});
     if (!r.ok) throw new Error('HTTP ' + r.status);
     const d = await r.json();
     const al = (d.generalAlerts || []).map(a => a.title).join('   +++   ');
@@ -116,6 +182,7 @@ async function tick() {
 
 tickClock();
 tick();
+loadStops();
 setInterval(tickClock, 1000);
 setInterval(tick, 30000);
 </script>
